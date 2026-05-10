@@ -431,7 +431,7 @@ function exportData() {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     link.setAttribute("href", URL.createObjectURL(blob));
-    link.setAttribute("download", `GD_Report.csv`);
+    link.setAttribute("download", `GFI_BI_Dashboard_Report.csv`);
     link.click();
 }
 
