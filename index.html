@@ -641,7 +641,7 @@ function showCfg() { $('cfg-modal').style.display = 'flex'; }
 function saveCfg() { localStorage.setItem('tr_key', $('api-key').value); localStorage.setItem('tr_token', $('api-token').value); $('cfg-modal').style.display = 'none'; loadAll(); }
 function exportFullData() {
     const data = currentTab === 'alltime' ? allCards : allCards.filter(c => { const d = new Date(c.f[F_DT_REL] || c.date); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` === `${viewYear}-${String(viewMonth).padStart(2,'0')}`; });
-    let csv = "Name,Received,Approved,Released,Fulfilled,LeadSource,Dealer,Referror,ApprAmt,RelAmt,PNVal\n";
+    let csv = "Name,Received,Approved,Released,Fulfilled,Lead Source,Dealer,Referror,Approved Amount,Released Amout,PN Value\n";
     data.forEach(c => { csv += `"${c.name}",${c.f[F_DT_REC]},${c.f[F_DT_APPR]},${c.f[F_DT_REL]},${c.f[F_DT_FUL]},"${c.f[F_SOURCE]}","${c.f[F_DEALER]}","${c.f[F_REFERROR]}",${c.f[F_AMT_APPR]||0},${c.f[F_AMT_REL]||0},${c.f[F_PN_VAL]||0}\n`; });
     const blob = new Blob([csv], { type: 'text/csv' });
     const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'GFI BI Dashboard.csv'; link.click();
