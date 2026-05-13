@@ -634,17 +634,29 @@ function renderWeeklyChart(data) {
     });
 }
 
-function switchTab(t) { currentTab = t; $('view-title').textContent = t === 'alltime' ? 'Executive Overview' : 'Monthly Performance'; document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); $(`nav-${t}`).classList.add('active'); $('month-selector').style.display = t === 'monthly' ? 'flex' : 'none'; $('recent-panel').style.display = t === 'monthly' ? 'block' : 'none'; render(); }
-function changeMonth(d) { viewMonth += d; if(viewMonth > 12) { viewMonth = 1; viewYear++; } if(viewMonth < 1) { viewMonth = 12; viewYear--; } $('current-month-display').textContent = new Date(viewYear, viewMonth - 1).toLocaleString('default', {month:'long', year:'numeric'}); render(); }
-async function fetchTrello(path) { const k = localStorage.getItem('tr_key'), t = localStorage.getItem('tr_token'); const r = await fetch(`https://api.trello.com/1/${path}${path.includes('?')?'&':'?'}key=${k}&token=${t}`); return r.json(); }
-function showCfg() { $('cfg-modal').style.display = 'flex'; }
-function saveCfg() { localStorage.setItem('tr_key', $('api-key').value); localStorage.setItem('tr_token', $('api-token').value); $('cfg-modal').style.display = 'none'; loadAll(); }
+// UPDATED EXPORT FUNCTION: Returns "-" strictly for missing variables
 function exportFullData() {
     const data = currentTab === 'alltime' ? allCards : allCards.filter(c => { const d = new Date(c.f[F_DT_REL] || c.date); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` === `${viewYear}-${String(viewMonth).padStart(2,'0')}`; });
-    let csv = "Name,Received,Approved,Released,Fulfilled,Lead Source,Dealer,Referror,Approved Amount,Released Amout,PN Value\n";
-    data.forEach(c => { csv += `"${c.name}",${c.f[F_DT_REC]},${c.f[F_DT_APPR]},${c.f[F_DT_REL]},${c.f[F_DT_FUL]},"${c.f[F_SOURCE]}","${c.f[F_DEALER]}","${c.f[F_REFERROR]}",${c.f[F_AMT_APPR]||0},${c.f[F_AMT_REL]||0},${c.f[F_PN_VAL]||0}\n`; });
+    let csv = "Name,Received,Approved,Released,Fulfilled,LeadSource,Dealer,Referror,ApprAmt,RelAmt,PNVal\n";
+    
+    data.forEach(c => { 
+        // Fallbacks: if the data is missing, put a dash '-'
+        const rec = c.f[F_DT_REC] || '-';
+        const appr = c.f[F_DT_APPR] || '-';
+        const rel = c.f[F_DT_REL] || '-';
+        const ful = c.f[F_DT_FUL] || '-';
+        const src = c.f[F_SOURCE] || '-';
+        const dlr = c.f[F_DEALER] || '-';
+        const ref = c.f[F_REFERROR] || '-';
+        
+        csv += `"${c.name}","${rec}","${appr}","${rel}","${ful}","${src}","${dlr}","${ref}",${c.f[F_AMT_APPR]||0},${c.f[F_AMT_REL]||0},${c.f[F_PN_VAL]||0}\n`; 
+    });
+    
     const blob = new Blob([csv], { type: 'text/csv' });
-    const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'GFI BI Dashboard.csv'; link.click();
+    const link = document.createElement('a'); 
+    link.href = URL.createObjectURL(blob); 
+    link.download = 'Report.csv'; 
+    link.click();
 }
 loadAll();
 </script>
